@@ -6,6 +6,8 @@ vim.opt.winbar = "%=%m %f"
 vim.g.lazyvim_picker = "telescope"
 vim.opt.wrap = true
 vim.g.autoformat = false
+vim.opt.exrc = true
+vim.opt.secure = true
 
 -- Change ident space/tab
 vim.o.tabstop = 4
@@ -15,3 +17,8 @@ vim.o.softtabstop = 4
 
 -- Change backspace to normal behavior
 vim.opt.backspace = {'indent', 'eol', 'start'}
+--
+-- -- error/warning
+-- vim.diagnostic.config({
+--     virtual_text = false
+-- })
