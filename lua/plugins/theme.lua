@@ -1,4 +1,8 @@
 return {
+    {
+        "rose-pine/neovim",
+        name = "rose-pine",
+    },
     { "EdenEast/nightfox.nvim" },
     { "oxfist/night-owl.nvim"},
     { "olivercederborg/poimandres.nvim"},
@@ -16,7 +20,7 @@ return {
     {
         "LazyVim/LazyVim",
         opts = {
-            colorscheme = "carbonfox",
+            colorscheme = "rose-pine-moon",
         },
     },
 }
