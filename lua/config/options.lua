@@ -17,6 +17,7 @@ vim.o.softtabstop = 4
 vim.lsp.config('cssls', {
   capabilities = capabilities,
 })
+vim.opt.clipboard = "unnamedplus"
 
 -- Change backspace to normal behavior
 vim.opt.backspace = {'indent', 'eol', 'start'}
