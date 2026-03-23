@@ -1,0 +1,73 @@
+return {
+	"kylechui/nvim-surround",
+	version = "*", -- Use for stability; omit to use `main` branch for the latest features
+	event = "VeryLazy",
+	opts = {},
+	keys = {
+		{
+			"<C-g>s",
+			"<Plug>(nvim-surround-insert)",
+			mode = "i",
+			desc = "Add a surrounding pair around the cursor (insert mode)",
+			silent = true,
+		},
+		{
+			"<C-g>S",
+			"<Plug>(nvim-surround-insert-line)",
+			mode = "i",
+			desc = "Add a surrounding pair around the cursor, on new lines (insert mode)",
+			silent = true,
+		},
+		{
+			"gsa",
+			"<Plug>(nvim-surround-normal)",
+			mode = "n",
+			desc = "Add a surrounding pair around a motion (normal mode)",
+			silent = true,
+		},
+		{
+			"gsaV",
+			"<Plug>(nvim-surround-normal-cur)",
+			mode = "n",
+			desc = "Add a surrounding pair around the current line (normal mode)",
+			silent = true,
+		},
+		{
+			"gsAm",
+			"<Plug>(nvim-surround-normal-line)",
+			mode = "n",
+			desc = "Add a surrounding pair around a motion, on new lines (normal mode)",
+			silent = true,
+		},
+		{
+			"gsAl",
+			"<Plug>(nvim-surround-normal-cur-line)",
+			mode = "n",
+			desc = "Add a surrounding pair around the current line, on new lines (normal mode)",
+			silent = true,
+		},
+		{
+			"gsa",
+			"<Plug>(nvim-surround-visual)",
+			mode = "x",
+			desc = "Add a surrounding pair around a visual selection",
+			silent = true,
+		},
+		{
+			"gsA",
+			"<Plug>(nvim-surround-visual-line)",
+			mode = "x",
+			desc = "Add a surrounding pair around a visual selection, on new lines",
+			silent = true,
+		},
+		{ "gsd", "<Plug>(nvim-surround-delete)", mode = "n", desc = "Delete a surrounding pair", silent = true },
+		{ "gsr", "<Plug>(nvim-surround-change)", mode = "n", desc = "Change a surrounding pair", silent = true },
+		{
+			"gsR",
+			"<Plug>(nvim-surround-change-line)",
+			mode = "n",
+			desc = "Change a surrounding pair, putting replacements on new lines",
+			silent = true,
+		},
+	},
+}
