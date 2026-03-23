@@ -191,7 +191,6 @@ return {
 			function()
 				Snacks.toggle.animate():toggle()
 				if not vim.g.neovide then
-					vim.b.minianimate_disable = not vim.b.minianimate_disable
 					require("smear_cursor").toggle()
 				end
 			end,
@@ -276,7 +275,6 @@ return {
 					vim.cmd([[NoMatchParen]])
 				end
 				Snacks.util.wo(0, { foldmethod = "manual", statuscolumn = "", conceallevel = 0 })
-				vim.b.minianimate_disable = true
 				vim.b.minihipatterns_disable = true
 				vim.schedule(function()
 					if vim.api.nvim_buf_is_valid(ctx.buf) then
