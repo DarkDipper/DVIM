@@ -39,7 +39,7 @@ return {
     end
 
     dashboard.section.footer.val = {
-      centerText("CNV with love", 50),
+      centerText("Wish you have power to type more", 50),
       " ",
       -- centerText("NvimOnMy_Way❤️", 50),
       -- " ",
