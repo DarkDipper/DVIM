@@ -28,13 +28,16 @@ return {
             java_home = vim.fn.system("mise where java"):gsub("\n", "")
         end
 
-        -- Project name & workspace
-        local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-        local workspace_dir = vim.fn.stdpath("data") .. "/jdtls/" .. project_name
-
         -- Root detection
         local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
         local root_dir = require("jdtls.setup").find_root(root_markers)
+
+        if root_dir == nil  then
+          return
+        end
+
+        -- Project name & workspace
+        local workspace_dir = vim.fn.stdpath("data") .. "/jdtls/" .. vim.fn.sha256(root_dir)
 
         if root_dir == nil then
             return
