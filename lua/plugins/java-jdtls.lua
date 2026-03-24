@@ -1,78 +1,132 @@
-return {}
--- return {
---   {
---     "neovim/nvim-lspconfig",
---     dependencies = { "mfussenegger/nvim-jdtls" },
---     opts = {
---       setup = {
---         jdtls = function(_, _)
---           vim.api.nvim_create_autocmd("FileType", {
---             pattern = "java",
---             callback = function()
---               local jdtls = require("jdtls")
---               local mason_jdtls = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
---               local launcher = vim.fn.glob(mason_jdtls .. "/plugins/org.eclipse.equinox.launcher_*.jar")
---
---               local root_dir = require("jdtls.setup").find_root({ "mvnw", "pom.xml", "gradlew", "build.gradle" })
---               if not root_dir or launcher == "" then return end
---
---               _G.jdtls_active = _G.jdtls_active or {}
---               if _G.jdtls_active[root_dir] then return end
---               _G.jdtls_active[root_dir] = true
---
---               local project_name = vim.fn.fnamemodify(root_dir, ":p:h:t")
---               local workspace_dir = vim.fn.expand("~/.workspace/") .. project_name
---
---               local function on_attach(_, bufnr)
---                 local function map(mode, lhs, rhs, desc)
---                   vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, noremap = true, silent = true, desc = desc })
---                 end
---                 map("n", "<leader>di", function() jdtls.organize_imports() end, "Organize Imports")
---                 map("n", "<leader>dt", function() jdtls.test_class() end, "Test Class")
---                 map("n", "<leader>dn", function() jdtls.test_nearest_method() end, "Test Nearest Method")
---                 map("v", "<leader>de", "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>", "Extract Variable")
---                 map("v", "<leader>dm", "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>", "Extract Method")
---                 map("n", "<leader>de", function() jdtls.extract_variable() end, "Extract Variable")
---                 map("n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, "Format")
---               end
---
---               local cmd = {
---                 "/usr/bin/java",
---                 "-javaagent:" .. mason_jdtls .. "/lombok.jar",
---                 "-Declipse.application=org.eclipse.jdt.ls.core.id1",
---                 "-Dosgi.bundles.defaultStartLevel=4",
---                 "-Declipse.product=org.eclipse.jdt.ls.core.product",
---                 "-Dlog.protocol=true",
---                 "-Dlog.level=ALL",
---                 "-Xms1g",
---                 "--add-modules=ALL-SYSTEM",
---                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
---                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
---                 "-jar", launcher,
---                 "-configuration", mason_jdtls .. "/config_mac_arm",
---                 "-data", workspace_dir,
---               }
---
---               local config = {
---                 cmd = cmd,
---                 root_dir = root_dir,
---                 on_attach = on_attach,
---                 single_file_support = false,
---                 settings = { java = {} },
---                 handlers = {
---                   ["language/status"] = function() end,
---                   ["$/progress"] = function() end,
---                 },
---                 capabilities = (pcall(require, "cmp_nvim_lsp") and require("cmp_nvim_lsp").default_capabilities()) or nil,
---               }
---
---               jdtls.start_or_attach(config)
---             end,
---           })
---           return true
---         end,
---       },
---     },
---   },
--- }
---
+return {
+    "mfussenegger/nvim-jdtls",
+    ft = { "java" },
+
+    config = function()
+        local jdtls = require("jdtls")
+
+        -- lombok_path
+        local function get_lombok_jar()
+            local base = vim.fn.expand("~/.m2/repository/org/projectlombok/lombok")
+
+            local paths = vim.fn.globpath(base, "*/lombok-*.jar", false, true)
+
+            if not paths or #paths == 0 then
+                return nil
+            end
+
+            table.sort(paths)
+            return paths[#paths]
+        end
+
+        local lombok_path = get_lombok_jar()
+        vim.notify("LOMBOK_PATH: " .. (lombok_path or "nil"))
+
+        -- Use JAVA_HOME from mise
+        local java_home = vim.fn.getenv("JAVA_HOME")
+        if java_home == nil or java_home == "" then
+            java_home = vim.fn.system("mise where java"):gsub("\n", "")
+        end
+
+        -- Project name & workspace
+        local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+        local workspace_dir = vim.fn.stdpath("data") .. "/jdtls/" .. project_name
+
+        -- Root detection
+        local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
+        local root_dir = require("jdtls.setup").find_root(root_markers)
+
+        if root_dir == nil then
+            return
+        end
+
+        -- Mason paths
+        local mason_path = vim.fn.stdpath("data") .. "/mason/"
+        local jdtls_path = mason_path .. "packages/jdtls/"
+        local launcher = vim.fn.glob(jdtls_path .. "plugins/org.eclipse.equinox.launcher_*.jar")
+
+        -- OS config (adjust if not Linux)
+        local config_os = "config_linux"
+
+        -- Debug/Test bundles
+        local bundles = {}
+
+        local java_debug_path = mason_path .. "packages/java-debug-adapter/"
+        local java_test_path = mason_path .. "packages/java-test/"
+
+        vim.list_extend(
+            bundles,
+            vim.split(vim.fn.glob(java_debug_path .. "extension/server/com.microsoft.java.debug.plugin-*.jar"), "\n")
+        )
+        vim.list_extend(bundles, vim.split(vim.fn.glob(java_test_path .. "extension/server/*.jar"), "\n"))
+
+        -- Capabilities (safe fallback)
+        local capabilities = vim.lsp.protocol.make_client_capabilities()
+        local ok, cmp = pcall(require, "cmp_nvim_lsp")
+        if ok then
+            capabilities = cmp.default_capabilities(capabilities)
+        end
+
+        local cmd = {
+            java_home .. "/bin/java",
+        }
+
+        -- inject lombok ONLY if found
+        if lombok_path then
+            table.insert(cmd, "-javaagent:" .. lombok_path)
+            table.insert(cmd, "-Xbootclasspath/a:" .. lombok_path)
+        end
+
+        -- rest of args
+        vim.list_extend(cmd, {
+            "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+            "-Dosgi.bundles.defaultStartLevel=4",
+            "-Declipse.product=org.eclipse.jdt.ls.core.product",
+            "-Dlog.protocol=true",
+            "-Dlog.level=ALL",
+            "-Xmx1g",
+            "--add-modules=ALL-SYSTEM",
+            "--add-opens",
+            "java.base/java.util=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/java.lang=ALL-UNNAMED",
+
+            "-jar",
+            launcher,
+            "-configuration",
+            jdtls_path .. config_os,
+            "-data",
+            workspace_dir,
+        }) -- JDTLS config
+        local config = {
+            cmd = cmd,
+
+            root_dir = root_dir,
+            capabilities = capabilities,
+
+            settings = {
+                java = {
+                    configuration = {
+                        runtimes = {
+                            {
+                                name = "JavaSE-21",
+                                path = java_home,
+                            },
+                        },
+                    },
+                },
+            },
+
+            init_options = {
+                bundles = bundles,
+            },
+        }
+
+        -- Start or attach
+        jdtls.start_or_attach(config)
+
+        -- Enable DAP + tests
+        require("jdtls").setup_dap({ hotcodereplace = "auto" })
+        require("jdtls.dap").setup_dap_main_class_configs()
+    end,
+}
