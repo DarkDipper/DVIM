@@ -165,7 +165,7 @@ return {
 		{
 			"<leader>tf",
 			function()
-				Snacks.terminal("zsh", { cwd = vim.fn.expand("%:p:h") })
+				Snacks.terminal("bash", { cwd = vim.fn.expand("%:p:h") })
 			end,
 			desc = "Buffer Dir (floating)",
 			silent = true,
