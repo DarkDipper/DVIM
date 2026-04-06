@@ -30,6 +30,7 @@ return {
 		{ "<leader>uC", false },
 		{ "<leader>uD", false },
 		{ "<leader>.", false },
+    { "<c-/>", false},
 		{
 			"<leader><leader>",
 			function()
@@ -460,7 +461,7 @@ return {
 					keys = {
 						["<c-q>"] = { "close", mode = { "n", "i" } },
 						["<F1>"] = { "toggle_help", mode = { "n", "i" } },
-						["<c-/>"] = { "toggle_help", mode = { "i" } },
+						["<c-/>"] = false,
 						["<a-r>"] = { "toggle_regex", mode = { "i", "n" } },
 						["<a-q>"] = { "qflist", mode = { "i", "n" } },
 						["<s-k>"] = { "preview_scroll_up", mode = { "n" } },
@@ -505,7 +506,7 @@ return {
 			},
 		},
 		terminal = {
-			enabled = true,
+			enabled = false,
 			win = {
 				keys = {
 					nav_h = false,
