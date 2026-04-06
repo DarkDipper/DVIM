@@ -15,10 +15,9 @@ vim.o.shiftwidth = 2
 vim.o.expandtab = true
 vim.o.softtabstop = 2
 vim.o.autoindent = true
-vim.lsp.config('cssls', {
-  capabilities = capabilities,
+vim.lsp.config("cssls", {
+    capabilities = capabilities,
 })
-vim.opt.clipboard = "unnamedplus"
 --- filetype
 vim.filetype.add({
   extension = {
@@ -26,8 +25,9 @@ vim.filetype.add({
     razor = "razor",
   },
 })
+vim.opt.clipboard = "unnamed"
 -- Change backspace to normal behavior
-vim.opt.backspace = {'indent', 'eol', 'start'}
+vim.opt.backspace = { "indent", "eol", "start" }
 --
 -- -- error/warning
 -- vim.diagnostic.config({
